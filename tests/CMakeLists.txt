@@ -1,0 +1,3 @@
+add_executable(test_addressbook test_addressbook.cpp)
+target_link_libraries(test_addressbook PRIVATE Qt6::Test Qt6::Widgets addressbook_lib)
+add_test(NAME AddressBookTests COMMAND test_addressbook)
