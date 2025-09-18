@@ -1,9 +1,0 @@
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/addressbook.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/edit_cache.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/rebuild_cache.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/list_install_components.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/install.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/install/local.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/install/strip.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/addressbook_autogen_timestamp_deps.dir
-/Applications/Qt/Examples/Qt-6.9.2/widgets/itemviews/addressbook/build/Qt_6_9_2_for_macOS-Debug/CMakeFiles/addressbook_autogen.dir
