@@ -16,6 +16,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
+    // Getters for testing
+    AddressWidget* getAddressWidget() const { return addressWidget; }
+    QAction* getEditAction() const { return editAct; }
+    QAction* getRemoveAction() const { return removeAct; }
+    QAction* getAddAction() const { return addAct; }
+
 private slots:
     void updateActions(const QItemSelection &selection);
     void openFile();
@@ -27,6 +33,7 @@ private:
     AddressWidget *addressWidget;
     QAction *editAct;
     QAction *removeAct;
+    QAction *addAct;
 };
 //! [0]
 

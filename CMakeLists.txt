@@ -42,3 +42,10 @@ qt_generate_deploy_app_script(
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
+
+
+enable_testing() # enables CMake's CTest framework
+# CTest Framework allows for commands like:
+    # ctest    :runs all tests added with add_test()
+    # ctest -V   :runs all tests and shows verbose output
+add_subdirectory(tests)

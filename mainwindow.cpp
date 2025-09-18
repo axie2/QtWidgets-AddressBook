@@ -40,7 +40,7 @@ void MainWindow::createMenus()
 
     QMenu *toolMenu = menuBar()->addMenu(tr("&Tools"));
 
-    QAction *addAct = new QAction(tr("&Add Entry..."), this);
+    addAct = new QAction(tr("&Add Entry..."), this);
     toolMenu->addAction(addAct);
     connect(addAct, &QAction::triggered,
             addressWidget, &AddressWidget::showAddEntryDialog);

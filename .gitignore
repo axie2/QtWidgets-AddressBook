@@ -5,7 +5,7 @@
 *.swp
 
 # Build folders
-build-*/
+build/
 
 # OS-specific
 .DS_Store
