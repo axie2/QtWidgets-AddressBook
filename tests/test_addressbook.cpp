@@ -11,7 +11,6 @@
 #include "../mainwindow.h"
 #include "../addresswidget.h"
 #include "../adddialog.h"
-// #include "../tablemodel.h"
 
 class TestAddressBook : public QObject {
     Q_OBJECT
@@ -24,6 +23,7 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
     void testAddContact();
+    void testRemoveContact();
 };
 
 void TestAddressBook::initTestCase() {
@@ -45,25 +45,18 @@ void TestAddressBook::cleanupTestCase() {
 // ---------------- Add Contact Test ----------------
 void TestAddressBook::testAddContact()
 {
-    // MainWindow w;
-    // w.show();
-    // QVERIFY(QTest::qWaitForWindowExposed(&w));
-
-    // AddressWidget *aw = w.getAddressWidget();
-    // QVERIFY(aw);
-
-
     // Spy on the selectionChanged signal
     QSignalSpy spy(aw, &AddressWidget::selectionChanged);
 
     // Wait for the Add Entry dialog to appear
-    // There might be an easier way to do this?
-    // I can't use findChild here because AddressWidget::editEntry(),
-    // creates a local AddDialog object on the stack.
+    // I can't use findChild because AddressWidget::editEntry() creates a local AddDialog object on the stack.
     // Because it’s local, there’s no persistent pointer in the object tree for findChild() to see.
-    QTimer::singleShot(150, [&]() {
-        QDialog *dialog = qobject_cast<QDialog*>(QApplication::activeModalWidget());
-        QVERIFY(dialog);
+
+    // The main goal of the singleShot technique is to handle events that would normally block the test runner.
+    // For example, a modal dialog box opened by your application code would halt the test execution until a user clicks a button
+    QTimer::singleShot(0, [&]() {
+        QDialog *dialog = nullptr;
+        QTRY_VERIFY(dialog = qobject_cast<QDialog*>(QApplication::activeModalWidget()));
         QVERIFY(QTest::qWaitForWindowExposed(dialog));
 
         QLineEdit *nameEdit = dialog->findChild<QLineEdit*>("nameLineEdit");
@@ -106,9 +99,43 @@ void TestAddressBook::testAddContact()
     QCOMPARE(model->data(model->index(0, 1)).toString(), QString("123 Main St"));
 }
 
+void TestAddressBook::testRemoveContact()
+{
+    // Get the table in the "JKL" tab
+    bool foundJKL = false;
+    for (int i = 0; i < aw->count(); ++i) {
+        if (aw->tabText(i) == "JKL") {
+            aw->setCurrentIndex(i);
+            foundJKL = true;
+            break;
+        }
+    }
+    QVERIFY(foundJKL);
 
+    QTableView *table = qobject_cast<QTableView*>(aw->currentWidget());
+    QVERIFY(table);
+    QAbstractItemModel *model = table->model();
 
+    // Ensure there is at least one contact to remove
+    QCOMPARE(model->rowCount(), 1);
 
+    // Select the first row
+    table->selectRow(0);
+
+    // Spy on the selectionChanged signal (optional, if Remove emits it)
+    QSignalSpy spy(aw, &AddressWidget::selectionChanged);
+
+    // Trigger the Remove action
+    QAction *removeAction = mainWin->getRemoveAction();  // You need a getter like getRemoveAction()
+    QVERIFY(removeAction);
+    removeAction->trigger();
+
+    // Wait for the signal (optional)
+    QTRY_COMPARE(spy.count(), 1);
+
+    // Verify that the table is now empty
+    QCOMPARE(model->rowCount(), 0);
+}
 
 // Generates main() automatically for Qt Test
 QTEST_MAIN(TestAddressBook)
