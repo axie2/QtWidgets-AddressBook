@@ -127,6 +127,8 @@ void AddressWidget::setupTabs()
         proxyModel->setFilterKeyColumn(0);
 
         QTableView *tableView = new QTableView;
+        tableView->setObjectName("contactsTable");
+
         tableView->setModel(proxyModel);
         tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
         tableView->horizontalHeader()->setStretchLastSection(true);

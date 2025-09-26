@@ -10,6 +10,7 @@
 #include <QItemSelection>
 #include <QTabWidget>
 #include <QStandardPaths>
+#include <QtWidgets/qlineedit.h>
 
 QT_BEGIN_NAMESPACE
 class QSortFilterProxyModel;
@@ -25,6 +26,7 @@ public:
     AddressWidget(QWidget *parent = nullptr);
     void readFromFile();
     void writeToFile();
+    TableModel* getTableModel() const { return table; }
 
 public slots:
     void showAddEntryDialog();

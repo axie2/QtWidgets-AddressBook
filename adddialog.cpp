@@ -11,10 +11,16 @@ AddDialog::AddDialog(QWidget *parent)
       nameText(new QLineEdit),
       addressText(new QTextEdit)
 {
+    nameText->setObjectName("nameLineEdit");
+    addressText->setObjectName("addressTextEdit");
+
     auto nameLabel = new QLabel(tr("Name"));
     auto addressLabel = new QLabel(tr("Address"));
     auto okButton = new QPushButton(tr("OK"));
     auto cancelButton = new QPushButton(tr("Cancel"));
+
+    okButton->setObjectName("okButton");
+    cancelButton->setObjectName("cancelButton");
 
     auto gLayout = new QGridLayout;
     gLayout->setColumnStretch(1, 2);

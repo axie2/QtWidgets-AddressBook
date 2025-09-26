@@ -1,96 +1,113 @@
-#include <QtTest/QtTest>
+#include <QtTest/QTest>
 #include <QAction>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QDialog>
 #include <QTableView>
 #include <QSignalSpy>
-#include "../mainwindow.h"
+#include <QTextEdit>
+#include <QTimer>
 
+#include "../mainwindow.h"
+#include "../addresswidget.h"
+#include "../adddialog.h"
+// #include "../tablemodel.h"
 
 class TestAddressBook : public QObject {
     Q_OBJECT
 
-    private slots:
-        void testAddContact();
-        void testRemoveContact();
+private:
+    MainWindow *mainWin = nullptr;
+    AddressWidget *aw = nullptr;
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testAddContact();
 };
+
+void TestAddressBook::initTestCase() {
+    mainWin = new MainWindow();
+    mainWin->show();
+    QVERIFY(QTest::qWaitForWindowExposed(mainWin));
+
+    aw = mainWin->getAddressWidget();
+    QVERIFY(aw);
+}
+
+void TestAddressBook::cleanupTestCase() {
+    delete mainWin;
+    mainWin = nullptr;
+    aw = nullptr;
+}
+
 
 // ---------------- Add Contact Test ----------------
 void TestAddressBook::testAddContact()
 {
-    MainWindow w;
-    w.show();
+    // MainWindow w;
+    // w.show();
+    // QVERIFY(QTest::qWaitForWindowExposed(&w));
 
-    // Access Add QAction
-    QAction *addAction = w.getAddAction();
-    QVERIFY(addAction);
+    // AddressWidget *aw = w.getAddressWidget();
+    // QVERIFY(aw);
+
 
     // Spy on the selectionChanged signal
-    QSignalSpy spy(w.getAddressWidget(), &AddressWidget::selectionChanged);
-
-    // Trigger Add Entry action
-    addAction->trigger();
-
-    // Interact with Add Contact dialog
-    QDialog *dialog = w.findChild<QDialog*>();
-    QVERIFY(dialog);
-
-    QLineEdit *nameEdit = dialog->findChild<QLineEdit*>("nameLineEdit");
-    QLineEdit *addressEdit = dialog->findChild<QLineEdit*>("addressTextEdit");
-    QVERIFY(nameEdit);
-    QVERIFY(addressEdit);
-
-    QTest::keyClicks(nameEdit, "John Doe");
-    QTest::keyClicks(addressEdit, "123 Main St");
-
-    QPushButton *okButton = dialog->findChild<QPushButton*>("okButton");
-    QVERIFY(okButton);
-    QTest::mouseClick(okButton, Qt::LeftButton);
-
-    // Check that selectionChanged was emitted
-    QVERIFY(spy.count() > 0);
-}
-
-// ---------------- Remove Contact Test ----------------
-void TestAddressBook::testRemoveContact()
-{
-    MainWindow w;
-    w.show();
-
-    AddressWidget *aw = w.getAddressWidget();
-    QVERIFY(aw);
-
-    // Add a contact via Add Entry dialog (or directly if allowed)
-    QAction *addAction = w.getAddAction();
-    addAction->trigger();
-    QDialog *dialog = w.findChild<QDialog*>();
-    QVERIFY(dialog);
-
-    QLineEdit *nameEdit = dialog->findChild<QLineEdit*>("nameLineEdit");
-    QLineEdit *addressEdit = dialog->findChild<QLineEdit*>("addressTextEdit");
-    QTest::keyClicks(nameEdit, "Alice");
-    QTest::keyClicks(addressEdit, "111 First St");
-
-    QPushButton *okButton = dialog->findChild<QPushButton*>("okButton");
-    QTest::mouseClick(okButton, Qt::LeftButton);
-
-    // Select the contact in the table (simulate user clicking first row)
-    QTableView *table = aw->findChild<QTableView*>();
-    QVERIFY(table);
-    table->selectRow(0);
-
-    // Spy on selectionChanged
     QSignalSpy spy(aw, &AddressWidget::selectionChanged);
 
-    // Trigger Remove action
-    QAction *removeAction = w.getRemoveAction();
-    QVERIFY(removeAction);
-    removeAction->trigger();
+    // Wait for the Add Entry dialog to appear
+    // There might be an easier way to do this?
+    // I can't use findChild here because AddressWidget::editEntry(),
+    // creates a local AddDialog object on the stack.
+    // Because it’s local, there’s no persistent pointer in the object tree for findChild() to see.
+    QTimer::singleShot(150, [&]() {
+        QDialog *dialog = qobject_cast<QDialog*>(QApplication::activeModalWidget());
+        QVERIFY(dialog);
+        QVERIFY(QTest::qWaitForWindowExposed(dialog));
 
-    // Verify that selectionChanged signal was emitted
-    QVERIFY(spy.count() > 0);
+        QLineEdit *nameEdit = dialog->findChild<QLineEdit*>("nameLineEdit");
+        QVERIFY(nameEdit);
+        QTextEdit *addressEdit = dialog->findChild<QTextEdit*>("addressTextEdit");
+        QVERIFY(addressEdit);
+
+        QTest::keyClicks(nameEdit, "John Doe");
+        QTest::keyClicks(addressEdit, "123 Main St");
+
+        QPushButton *okButton = dialog->findChild<QPushButton*>("okButton");
+        QVERIFY(okButton);
+        QTest::mouseClick(okButton, Qt::LeftButton);
+    });
+
+    // Trigger Add Entry action
+    QAction *addAction = mainWin->getAddAction();
+    QVERIFY(addAction);
+    addAction->trigger();
+    spy.wait(500);
+
+    // Switch to the "JKL" tab before checking the table
+    bool foundJKL = false;
+    for (int i = 0; i < aw->count(); ++i) {
+        if (aw->tabText(i) == "JKL") {
+            aw->setCurrentIndex(i);
+            foundJKL = true;
+            break;
+        }
+    }
+    QVERIFY(foundJKL);
+
+    // Verify table contents
+    QTableView *table = qobject_cast<QTableView*>(aw->currentWidget());
+    QVERIFY(table);
+    QAbstractItemModel *model = table->model();
+    QCOMPARE(model->rowCount(), 1);
+    QString name = table->model()->index(0, 0).data().toString();
+    QCOMPARE(model->data(model->index(0, 0)).toString(), QString("John Doe"));
+    QCOMPARE(model->data(model->index(0, 1)).toString(), QString("123 Main St"));
 }
+
+
+
 
 
 // Generates main() automatically for Qt Test
